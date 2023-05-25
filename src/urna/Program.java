@@ -6,19 +6,22 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Program {
 
-  public static void main(String[] args)
-    throws FileNotFoundException, IOException {
-    Scanner scanner = new Scanner(System.in);
+  public static void main(String[] args) {
+    Map<String, Integer> map = readDataFromFile();
+    printResult(map);
+  }
+
+  public static Map<String, Integer> readDataFromFile() {
     Map<String, Integer> map = new LinkedHashMap<>();
 
-    System.out.println("Enter file full path: ");
-    String path = scanner.nextLine();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+    try (
+      BufferedReader reader = new BufferedReader(
+        new FileReader("src/urna/Urna 1.csv")
+      )
+    ) {
       String line = reader.readLine();
       while (line != null) {
         String[] fields = line.split(",");
@@ -26,19 +29,25 @@ public class Program {
         String candidate = fields[0];
         Integer votes = Integer.parseInt(fields[1]);
 
-        if (map.get(candidate) == null) {
-          map.put(candidate, votes);
-        } else {
-          map.put(candidate, votes + map.get(candidate));
+        if (map.containsKey(candidate)) {
+          votes += map.get(candidate);
         }
+        map.put(candidate, votes);
+
         line = reader.readLine();
       }
-      for (String key : map.keySet()) {
-        System.out.println(key + ": " + map.get(key));
-      }
+    } catch (FileNotFoundException e) {
+      System.out.println("File not found: " + e.getMessage());
     } catch (IOException e) {
-      System.out.println("Error: " + e.getMessage());
+      System.out.println("Error reading file: " + e.getMessage());
     }
-    scanner.close();
+
+    return map;
+  }
+
+  public static void printResult(Map<String, Integer> map) {
+    for (String key : map.keySet()) {
+      System.out.println(key + ": " + map.get(key));
+    }
   }
 }
